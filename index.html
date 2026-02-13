@@ -14,7 +14,7 @@ color:white;
 /* GRID */
 #game{
 display:grid;
-grid-template-columns:repeat(6,80px);
+grid-template-columns:repeat(5,90px);
 gap:12px;
 justify-content:center;
 margin-top:30px;
@@ -22,9 +22,9 @@ margin-top:30px;
 
 /* CARD */
 .card{
-width:80px;
-height:80px;
-perspective:600px;
+width:90px;
+height:90px;
+perspective:700px;
 cursor:pointer;
 }
 
@@ -32,7 +32,7 @@ cursor:pointer;
 position:relative;
 width:100%;
 height:100%;
-transition:transform 0.4s;
+transition:transform 0.5s;
 transform-style:preserve-3d;
 }
 
@@ -45,20 +45,27 @@ position:absolute;
 width:100%;
 height:100%;
 border-radius:12px;
+backface-visibility:hidden;
 display:flex;
 align-items:center;
 justify-content:center;
-font-size:32px;
-backface-visibility:hidden;
 }
 
 .front{
 background:#ff4d6d;
+font-size:30px;
 }
 
 .back{
 background:#111;
 transform:rotateY(180deg);
+}
+
+.back img{
+width:80px;
+height:80px;
+object-fit:cover;
+border-radius:10px;
 }
 
 /* MESSAGE */
@@ -90,7 +97,6 @@ cursor:pointer;
 <div id="message">
 From Mumbai to Dubai… distance never mattered ❤️<br><br>
 Will u be my valentine Popoo?<br><br>
-
 <button onclick="acceptLove()">YES 💖</button>
 </div>
 
@@ -101,31 +107,32 @@ Will u be my valentine Popoo?<br><br>
 
 <script>
 
-// 18 themed pairs (36 cards total)
-const items=[
-"🐻","🐻",        // bear
-"🐰","🐰",        // rabbit
-"👕","👕",        // clothing
-"🌸","🌸",        // lily flower
-"🕌","🕌",        // burj khalifa style
-"🌊","🌊",        // marine drive
-"🚗","🚗",        // car
-"✈️","✈️",        // plane
-"🇮🇳","🇮🇳",      // Mumbai
-"🇦🇪","🇦🇪",      // Dubai
-"❤️","❤️",
-"💖","💖",
-"💌","💌",
-"🌍","🌍",
-"🏙️","🏙️",
-"🥰","🥰",
-"💕","💕",
-"✨","✨"
+/* REAL IMAGE LINKS */
+const images=[
+"https://images.unsplash.com/photo-1555685812-4b943f1cb0eb?w=200", // bear
+"https://images.unsplash.com/photo-1585110396000-c9ffd4e4b308?w=200", // rabbit
+"https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=200", // clothing
+"https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=200", // lily
+"https://images.unsplash.com/photo-1582672060674-bc2bd808a8b5?w=200", // burj khalifa
+"https://images.unsplash.com/photo-1605537964078-7b8c9f28a741?w=200", // marine drive
+"https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=200", // car
+"https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=200", // plane
+"https://images.unsplash.com/photo-1595658658481-d53d3f999875?w=200", // mumbai city
+"https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=200", // dubai skyline
+"https://images.unsplash.com/photo-1511988617509-a57c8a288659?w=200", // teddy
+"https://images.unsplash.com/photo-1504203700686-0f9c3d6f9f94?w=200"  // flowers
 ];
 
-let cards=items.sort(()=>Math.random()-0.5);
-let game=document.getElementById("game");
+/* duplicate for pairs */
+let cards=[...images,...images];
 
+/* add center heart tile */
+cards.push("HEART");
+
+/* shuffle */
+cards=cards.sort(()=>Math.random()-0.5);
+
+let game=document.getElementById("game");
 let flipSound=document.getElementById("flipSound");
 let matchSound=document.getElementById("matchSound");
 let winSound=document.getElementById("winSound");
@@ -135,27 +142,35 @@ let second=null;
 let lock=false;
 let matches=0;
 
-// CREATE CARDS
+/* CREATE CARDS */
 cards.forEach(value=>{
 
 let card=document.createElement("div");
 card.className="card";
 
+if(value==="HEART"){
+card.innerHTML=`
+<div class="inner flipped">
+<div class="front">❤️</div>
+<div class="back">❤️</div>
+`;
+card.classList.add("matched");
+matches++; // auto matched
+}else{
 card.innerHTML=`
 <div class="inner">
 <div class="front">❓</div>
-<div class="back">${value}</div>
+<div class="back"><img src="${value}"></div>
 </div>
 `;
-
 card.dataset.value=value;
-
 card.onclick=()=>flipCard(card);
+}
 
 game.appendChild(card);
 });
 
-// FLIP LOGIC
+/* FLIP */
 function flipCard(card){
 
 if(lock || card===first || card.classList.contains("matched")) return;
@@ -175,7 +190,6 @@ second=card;
 if(first.dataset.value===second.dataset.value){
 
 matchSound.play();
-
 first.classList.add("matched");
 second.classList.add("matched");
 
@@ -183,7 +197,7 @@ matches++;
 first=null;
 second=null;
 
-if(matches===18){
+if(matches===13){ // 12 pairs + heart
 winSound.play();
 document.getElementById("message").style.display="block";
 confetti();
@@ -191,25 +205,27 @@ confetti();
 
 }else{
 lock=true;
+
+/* LONGER DELAY HERE (1.5 sec) */
 setTimeout(()=>{
 first.classList.remove("flipped");
 second.classList.remove("flipped");
 first=null;
 second=null;
 lock=false;
-},800);
+},1500);
 }
 }
 
-// YES BUTTON
+/* YES BUTTON */
 function acceptLove(){
 alert("Healthy LDR → Official Relationship ❤️");
 confetti();
 }
 
-// CONFETTI
+/* CONFETTI */
 function confetti(){
-for(let i=0;i<80;i++){
+for(let i=0;i<100;i++){
 let c=document.createElement("div");
 c.innerHTML="💖";
 c.style.position="absolute";
@@ -221,7 +237,5 @@ setTimeout(()=>c.remove(),2000);
 }
 
 </script>
-
 </body>
 </html>
-
