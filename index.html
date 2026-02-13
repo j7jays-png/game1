@@ -11,13 +11,26 @@ background:#0a0a0a;
 color:white;
 }
 
+/* LOADING SCREEN */
+#loading{
+position:fixed;
+width:100%;
+height:100%;
+background:black;
+display:flex;
+align-items:center;
+justify-content:center;
+font-size:30px;
+z-index:10;
+}
+
 /* GRID */
 #game{
 display:grid;
 grid-template-columns:repeat(5,90px);
 gap:12px;
 justify-content:center;
-margin-top:30px;
+margin-top:20px;
 }
 
 /* CARD */
@@ -36,9 +49,7 @@ transition:transform 0.5s;
 transform-style:preserve-3d;
 }
 
-.flipped .inner{
-transform:rotateY(180deg);
-}
+.flipped .inner{ transform:rotateY(180deg); }
 
 .front,.back{
 position:absolute;
@@ -51,15 +62,8 @@ align-items:center;
 justify-content:center;
 }
 
-.front{
-background:#ff4d6d;
-font-size:30px;
-}
-
-.back{
-background:#111;
-transform:rotateY(180deg);
-}
+.front{ background:#ff4d6d; font-size:30px; }
+.back{ background:#111; transform:rotateY(180deg); }
 
 .back img{
 width:80px;
@@ -68,11 +72,32 @@ object-fit:cover;
 border-radius:10px;
 }
 
+/* UI BAR */
+#stats{
+margin-top:10px;
+}
+
+/* PROGRESS BAR */
+#progressContainer{
+width:300px;
+height:20px;
+background:#333;
+margin:10px auto;
+border-radius:10px;
+overflow:hidden;
+}
+
+#progressBar{
+height:100%;
+width:0%;
+background:#ff4d6d;
+}
+
 /* MESSAGE */
 #message{
 display:none;
 font-size:28px;
-margin-top:30px;
+margin-top:20px;
 }
 
 button{
@@ -89,8 +114,18 @@ cursor:pointer;
 
 <body>
 
+<div id="loading">Loading love... ❤️</div>
+
 <h2>Mumbai → Dubai ❤️</h2>
-<p>Match our journey to unlock my heart</p>
+
+<div id="stats">
+Moves: <span id="moves">0</span><br>
+Pairs Left: <span id="pairsLeft">12</span>
+</div>
+
+<div id="progressContainer">
+<div id="progressBar"></div>
+</div>
 
 <div id="game"></div>
 
@@ -101,46 +136,58 @@ Will u be my valentine Popoo?<br><br>
 </div>
 
 <!-- SOUNDS -->
-<audio id="flipSound" src="https://cdn.pixabay.com/download/audio/2022/03/10/audio_2b7c4f8a7d.mp3"></audio>
-<audio id="matchSound" src="https://cdn.pixabay.com/download/audio/2021/08/04/audio_0625c1e5df.mp3"></audio>
-<audio id="winSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_5c0a3b6c07.mp3"></audio>
+<audio id="flipSound" src="https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3"></audio>
+<audio id="matchSound" src="https://assets.mixkit.co/active_storage/sfx/2003/2003-preview.mp3"></audio>
+<audio id="winSound" src="https://assets.mixkit.co/active_storage/sfx/1435/1435-preview.mp3"></audio>
+<audio id="loveSound" src="https://assets.mixkit.co/active_storage/sfx/1436/1436-preview.mp3"></audio>
 
 <script>
 
-/* REAL IMAGE LINKS */
+/* LOADING SCREEN */
+setTimeout(()=>document.getElementById("loading").style.display="none",1500);
+
+/* IMAGES */
 const images=[
-"https://images.unsplash.com/photo-1555685812-4b943f1cb0eb?w=200", // bear
-"https://images.unsplash.com/photo-1585110396000-c9ffd4e4b308?w=200", // rabbit
-"https://images.unsplash.com/photo-1523381210434-271e8be1f52b?w=200", // clothing
-"https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=200", // lily
-"https://images.unsplash.com/photo-1582672060674-bc2bd808a8b5?w=200", // burj khalifa
-"https://images.unsplash.com/photo-1605537964078-7b8c9f28a741?w=200", // marine drive
-"https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=200", // car
-"https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=200", // plane
-"https://images.unsplash.com/photo-1595658658481-d53d3f999875?w=200", // mumbai city
-"https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=200", // dubai skyline
-"https://images.unsplash.com/photo-1511988617509-a57c8a288659?w=200", // teddy
-"https://images.unsplash.com/photo-1504203700686-0f9c3d6f9f94?w=200"  // flowers
+"https://cdn-icons-png.flaticon.com/512/616/616408.png",
+"https://cdn-icons-png.flaticon.com/512/616/616554.png",
+"https://cdn-icons-png.flaticon.com/512/892/892458.png",
+"https://cdn-icons-png.flaticon.com/512/765/765613.png",
+"https://cdn-icons-png.flaticon.com/512/684/684908.png",
+"https://cdn-icons-png.flaticon.com/512/869/869869.png",
+"https://cdn-icons-png.flaticon.com/512/744/744465.png",
+"https://cdn-icons-png.flaticon.com/512/2972/2972185.png",
+"https://cdn-icons-png.flaticon.com/512/197/197419.png",
+"https://cdn-icons-png.flaticon.com/512/197/197374.png",
+"https://cdn-icons-png.flaticon.com/512/833/833472.png",
+"https://cdn-icons-png.flaticon.com/512/2583/2583344.png"
 ];
 
-/* duplicate for pairs */
 let cards=[...images,...images];
-
-/* add center heart tile */
 cards.push("HEART");
-
-/* shuffle */
 cards=cards.sort(()=>Math.random()-0.5);
 
 let game=document.getElementById("game");
+let movesDisplay=document.getElementById("moves");
+let pairsDisplay=document.getElementById("pairsLeft");
+let progressBar=document.getElementById("progressBar");
+
 let flipSound=document.getElementById("flipSound");
 let matchSound=document.getElementById("matchSound");
 let winSound=document.getElementById("winSound");
+let loveSound=document.getElementById("loveSound");
+
+/* AUDIO UNLOCK */
+document.body.addEventListener("click",()=>{
+flipSound.play().catch(()=>{});
+flipSound.pause();
+flipSound.currentTime=0;
+},{once:true});
 
 let first=null;
 let second=null;
 let lock=false;
 let matches=0;
+let moves=0;
 
 /* CREATE CARDS */
 cards.forEach(value=>{
@@ -149,20 +196,15 @@ let card=document.createElement("div");
 card.className="card";
 
 if(value==="HEART"){
-card.innerHTML=`
-<div class="inner flipped">
-<div class="front">❤️</div>
-<div class="back">❤️</div>
-`;
+card.innerHTML=`<div class="inner flipped"><div class="front">❤️</div><div class="back">❤️</div></div>`;
 card.classList.add("matched");
-matches++; // auto matched
+matches++;
 }else{
 card.innerHTML=`
 <div class="inner">
 <div class="front">❓</div>
 <div class="back"><img src="${value}"></div>
-</div>
-`;
+</div>`;
 card.dataset.value=value;
 card.onclick=()=>flipCard(card);
 }
@@ -170,7 +212,16 @@ card.onclick=()=>flipCard(card);
 game.appendChild(card);
 });
 
-/* FLIP */
+/* UPDATE PROGRESS */
+function updateStats(){
+movesDisplay.innerText=moves;
+let pairsLeft=12-(matches-1);
+pairsDisplay.innerText=pairsLeft;
+let percent=(matches/13)*100;
+progressBar.style.width=percent+"%";
+}
+
+/* FLIP LOGIC */
 function flipCard(card){
 
 if(lock || card===first || card.classList.contains("matched")) return;
@@ -186,6 +237,8 @@ return;
 }
 
 second=card;
+moves++;
+updateStats();
 
 if(first.dataset.value===second.dataset.value){
 
@@ -194,10 +247,12 @@ first.classList.add("matched");
 second.classList.add("matched");
 
 matches++;
+updateStats();
+
 first=null;
 second=null;
 
-if(matches===13){ // 12 pairs + heart
+if(matches===13){
 winSound.play();
 document.getElementById("message").style.display="block";
 confetti();
@@ -205,8 +260,6 @@ confetti();
 
 }else{
 lock=true;
-
-/* LONGER DELAY HERE (1.5 sec) */
 setTimeout(()=>{
 first.classList.remove("flipped");
 second.classList.remove("flipped");
@@ -219,6 +272,7 @@ lock=false;
 
 /* YES BUTTON */
 function acceptLove(){
+loveSound.play();
 alert("Healthy LDR → Official Relationship ❤️");
 confetti();
 }
@@ -235,6 +289,8 @@ document.body.appendChild(c);
 setTimeout(()=>c.remove(),2000);
 }
 }
+
+updateStats();
 
 </script>
 </body>
