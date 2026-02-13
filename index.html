@@ -1,56 +1,221 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>For You ❤️</title>
+<title>Dubai → Mumbai ❤️</title>
+
 <style>
 body{
-text-align:center;
-font-family:Arial;
-background:#000;
+margin:0;
+overflow:hidden;
+background:black;
 color:white;
-padding-top:100px;
+font-family:Arial;
+text-align:center;
+}
+
+#player{
+position:absolute;
+font-size:40px;
+}
+
+#goal{
+position:absolute;
+font-size:50px;
+}
+
+.obstacle{
+position:absolute;
+font-size:40px;
+}
+
+#intro{
+position:absolute;
+top:30%;
+width:100%;
+font-size:30px;
+}
+
+#game{display:none;}
+
+#message{
+position:absolute;
+top:40%;
+width:100%;
+font-size:40px;
+display:none;
 }
 
 button{
 padding:15px 30px;
 font-size:20px;
-margin:20px;
 border:none;
 border-radius:10px;
+background:#ff4d6d;
+color:white;
 cursor:pointer;
 }
-
-#yes{background:#ff4d6d;color:white;}
-#no{background:white;color:black;}
 </style>
 </head>
 
 <body>
 
-<h1>Valentine Game ❤️</h1>
-<h2>Who is the cutest person ever? 😌</h2>
+<!-- INTRO SCREEN -->
+<div id="intro">
+Distance tested us.<br>
+Time strengthened us.<br>
+Feelings stayed constant ❤️<br><br>
 
-<button onclick="win()">You 😏</button>
-<button id="no" onmouseover="move()">Me 😌</button>
+From Dubai → Mumbai<br>
+One heart. One destination.<br><br>
+
+<button onclick="startGame()">Start Journey</button>
+</div>
+
+<!-- GAME AREA -->
+<div id="game">
+
+<h3 style="position:absolute;width:100%;">
+Reach Popoo ❤️ (Use Arrow Keys)
+</h3>
+
+<div id="player">❤️</div>
+<div id="goal">💖 Popoo</div>
+
+<div id="obs1" class="obstacle">✈️</div>
+<div id="obs2" class="obstacle">⏳</div>
+<div id="obs3" class="obstacle">🌍</div>
+
+</div>
+
+<!-- FINAL MESSAGE -->
+<div id="message">
+You crossed every distance for Popoo ❤️<br><br>
+Will u be my valentine?<br><br>
+
+<button onclick="celebrate()">YES 💖</button>
+</div>
+
+<!-- MUSIC -->
+<audio id="music" loop>
+<source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_5c0a3b6c07.mp3">
+</audio>
 
 <script>
 
-function move(){
-var x=Math.random()*window.innerWidth;
-var y=Math.random()*window.innerHeight;
-document.getElementById("no").style.position="absolute";
-document.getElementById("no").style.left=x+"px";
-document.getElementById("no").style.top=y+"px";
+let player=document.getElementById("player");
+let goal=document.getElementById("goal");
+let msg=document.getElementById("message");
+
+let x=50,y=300;
+
+let obs1=document.getElementById("obs1");
+let obs2=document.getElementById("obs2");
+let obs3=document.getElementById("obs3");
+
+function startGame(){
+document.getElementById("intro").style.display="none";
+document.getElementById("game").style.display="block";
+document.getElementById("music").play();
+
+player.style.left=x+"px";
+player.style.top=y+"px";
+
+goal.style.left=(window.innerWidth-150)+"px";
+goal.style.top="300px";
+
+obs1.style.left="400px";
+obs1.style.top="150px";
+
+obs2.style.left="600px";
+obs2.style.top="350px";
+
+obs3.style.left="800px";
+obs3.style.top="250px";
+
+moveObstacles();
 }
 
-function win(){
-document.body.innerHTML=
-"<h1>You unlocked my heart ❤️</h1>"+
-"<h2>Will you be my girlfriend?</h2>"+
-"<button onclick='alert(`Best decision ever ❤️`)'>YES 💖</button>";
+document.addEventListener("keydown",function(e){
+
+if(e.key=="ArrowRight") x+=25;
+if(e.key=="ArrowLeft") x-=25;
+if(e.key=="ArrowUp") y-=25;
+if(e.key=="ArrowDown") y+=25;
+
+player.style.left=x+"px";
+player.style.top=y+"px";
+
+createHeartTrail();
+checkCollision();
+checkWin();
+
+});
+
+function createHeartTrail(){
+let heart=document.createElement("div");
+heart.innerHTML="💗";
+heart.style.position="absolute";
+heart.style.left=x+"px";
+heart.style.top=y+"px";
+document.body.appendChild(heart);
+
+setTimeout(()=>heart.remove(),500);
+}
+
+function moveObstacles(){
+setInterval(()=>{
+obs1.style.top=Math.random()*window.innerHeight+"px";
+obs2.style.top=Math.random()*window.innerHeight+"px";
+obs3.style.top=Math.random()*window.innerHeight+"px";
+},2000);
+}
+
+function checkCollision(){
+let px=player.offsetLeft;
+let py=player.offsetTop;
+
+let obstacles=[obs1,obs2,obs3];
+
+obstacles.forEach(o=>{
+if(Math.abs(px-o.offsetLeft)<40 && Math.abs(py-o.offsetTop)<40){
+x=50;
+y=300;
+}
+});
+}
+
+function checkWin(){
+let px=player.offsetLeft;
+let py=player.offsetTop;
+let gx=goal.offsetLeft;
+let gy=goal.offsetTop;
+
+if(Math.abs(px-gx)<50 && Math.abs(py-gy)<50){
+document.getElementById("game").style.display="none";
+msg.style.display="block";
+confetti();
+}
+}
+
+function celebrate(){
+alert("Healthy LDR → Official Relationship ❤️");
+confetti();
+}
+
+function confetti(){
+for(let i=0;i<50;i++){
+let c=document.createElement("div");
+c.innerHTML="💖";
+c.style.position="absolute";
+c.style.left=Math.random()*window.innerWidth+"px";
+c.style.top=Math.random()*window.innerHeight+"px";
+document.body.appendChild(c);
+setTimeout(()=>c.remove(),2000);
+}
 }
 
 </script>
 
 </body>
 </html>
+
