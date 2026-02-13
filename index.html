@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>For You ❤️</title>
+<style>
+body{
+text-align:center;
+font-family:Arial;
+background:#000;
+color:white;
+padding-top:100px;
+}
+
+button{
+padding:15px 30px;
+font-size:20px;
+margin:20px;
+border:none;
+border-radius:10px;
+cursor:pointer;
+}
+
+#yes{background:#ff4d6d;color:white;}
+#no{background:white;color:black;}
+</style>
+</head>
+
+<body>
+
+<h1>Valentine Game ❤️</h1>
+<h2>Who is the cutest person ever? 😌</h2>
+
+<button onclick="win()">You 😏</button>
+<button id="no" onmouseover="move()">Me 😌</button>
+
+<script>
+
+function move(){
+var x=Math.random()*window.innerWidth;
+var y=Math.random()*window.innerHeight;
+document.getElementById("no").style.position="absolute";
+document.getElementById("no").style.left=x+"px";
+document.getElementById("no").style.top=y+"px";
+}
+
+function win(){
+document.body.innerHTML=
+"<h1>You unlocked my heart ❤️</h1>"+
+"<h2>Will you be my girlfriend?</h2>"+
+"<button onclick='alert(`Best decision ever ❤️`)'>YES 💖</button>";
+}
+
+</script>
+
+</body>
+</html>
