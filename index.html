@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Solve My Heart ❤️</title>
+<title>Mumbai → Dubai ❤️</title>
 
 <style>
 body{
@@ -11,105 +11,130 @@ background:black;
 color:white;
 }
 
-#puzzle{
-width:300px;
-margin:40px auto;
+#game{
 display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:5px;
+grid-template-columns:repeat(4,90px);
+gap:10px;
+justify-content:center;
+margin-top:40px;
 }
 
-.tile{
-width:100px;
-height:100px;
-font-size:30px;
+.card{
+width:90px;
+height:90px;
+background:#ff4d6d;
 display:flex;
 align-items:center;
 justify-content:center;
-background:#ff4d6d;
+font-size:35px;
 cursor:pointer;
-border-radius:10px;
-}
-
-.empty{
-background:black;
+border-radius:12px;
 }
 
 #message{
 display:none;
 font-size:30px;
-margin-top:20px;
+margin-top:30px;
 }
 </style>
 </head>
 
 <body>
 
-<h2>Arrange the pieces to unlock my heart ❤️</h2>
+<h2>Mumbai → Dubai ❤️</h2>
+<p>Match the journey to unlock my heart</p>
 
-<div id="puzzle"></div>
+<div id="game"></div>
 
 <div id="message">
-You completed my heart ❤️<br><br>
+From Mumbai to Dubai… distance never mattered ❤️<br><br>
 Will u be my valentine Popoo?<br><br>
 
-<button onclick="alert('Best decision ever ❤️')"
+<button onclick="winSound.play()"
 style="padding:15px 30px;font-size:20px;border:none;border-radius:10px;background:#ff4d6d;color:white;">
 YES 💖
 </button>
 </div>
 
+<!-- SOUND EFFECTS -->
+<audio id="flipSound" src="https://cdn.pixabay.com/download/audio/2022/03/10/audio_2b7c4f8a7d.mp3"></audio>
+<audio id="matchSound" src="https://cdn.pixabay.com/download/audio/2021/08/04/audio_0625c1e5df.mp3"></audio>
+<audio id="winSound" src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_5c0a3b6c07.mp3"></audio>
+
 <script>
 
-let board=["❤️","D","U","B","A","I","M","U",""];
-let solution=["❤️","D","U","B","A","I","M","U",""];
+// Mumbai → Dubai themed cards
+const emojis=[
+"🇮🇳","🇮🇳", // Mumbai
+"🇦🇪","🇦🇪", // Dubai
+"✈️","✈️", // travel
+"🌍","🌍", // distance
+"❤️","❤️", // love
+"💌","💌", // message
+"🏙️","🏙️", // cities
+"💖","💖" // relationship
+];
 
-function shuffle(arr){
-return arr.sort(()=>Math.random()-0.5);
+let shuffled=emojis.sort(()=>Math.random()-0.5);
+
+let game=document.getElementById("game");
+let flipSound=document.getElementById("flipSound");
+let matchSound=document.getElementById("matchSound");
+let winSound=document.getElementById("winSound");
+
+let first=null;
+let second=null;
+let lock=false;
+let matches=0;
+
+shuffled.forEach(emoji=>{
+let card=document.createElement("div");
+card.className="card";
+card.dataset.value=emoji;
+card.innerHTML="❓";
+
+card.onclick=function(){
+
+if(lock || this===first) return;
+
+flipSound.play();
+this.innerHTML=this.dataset.value;
+
+if(!first){
+first=this;
+return;
 }
 
-board=shuffle(board);
+second=this;
 
-const puzzle=document.getElementById("puzzle");
+if(first.dataset.value===second.dataset.value){
+matchSound.play();
+matches++;
+first=null;
+second=null;
 
-function render(){
-puzzle.innerHTML="";
-
-board.forEach((value,index)=>{
-let tile=document.createElement("div");
-
-tile.className=value==""?"tile empty":"tile";
-tile.innerHTML=value;
-tile.onclick=()=>move(index);
-
-puzzle.appendChild(tile);
-});
-}
-
-function move(i){
-let empty=board.indexOf("");
-
-let validMoves=[i-1,i+1,i-3,i+3];
-
-if(validMoves.includes(empty)){
-[board[i],board[empty]]=[board[empty],board[i]];
-render();
-checkWin();
-}
-}
-
-function checkWin(){
-if(board.join()==solution.join()){
+if(matches===8){
 document.getElementById("message").style.display="block";
-}
+winSound.play();
 }
 
-render();
+}else{
+lock=true;
+setTimeout(()=>{
+first.innerHTML="❓";
+second.innerHTML="❓";
+first=null;
+second=null;
+lock=false;
+},700);
+}
+
+};
+
+game.appendChild(card);
+});
 
 </script>
 
 </body>
 </html>
-
-
-
